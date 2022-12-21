@@ -32,7 +32,7 @@ class StaticAnalysisBuilder:
             compile_target = contract_address
             if self.network == Networks.ETHEREUM:
                 kwargs["etherscan_api_key"] = self.api_key
-                compile_target = f'mainnet:{compile_target}'
+                compile_target = f'mainet:{compile_target}'
             elif self.network == Networks.BSC:
                 kwargs["bscan_api_key"] = self.api_key
                 compile_target = f'bsc:{compile_target}'
