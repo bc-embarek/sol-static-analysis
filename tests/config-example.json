@@ -1,0 +1,15 @@
+{
+  "storage_base_path": "~/.ssa-data",
+  "chains": [
+    {
+      "key": "eth",
+      "etherscan_api_url": "https://api.etherscan.io/api",
+      "etherscan_api_key": ""
+    },
+    {
+      "key": "bsc",
+      "etherscan_api_url": "https://api.bscscan.com/api",
+      "etherscan_api_key": ""
+    }
+  ]
+}
