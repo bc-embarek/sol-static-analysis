@@ -1,5 +1,4 @@
 {
-  "storage_base_path": "~/.ssa-data",
   "chains": [
     {
       "key": "eth",

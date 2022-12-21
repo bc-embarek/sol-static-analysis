@@ -2,6 +2,7 @@
 
 import json
 import os.path
+import pathlib
 from typing import Dict
 from pathlib import Path
 
@@ -28,7 +29,7 @@ def load_config(config_filepath) -> GlobalConfig:
         raise ValueError(f"global_config file does not exists. {config_filepath}")
     with open(config_filepath, 'r') as f:
         config_json = json.loads(f.read())
-        storage_path = config_json.get('storage_base_path')
+        storage_path = config_json.get('storage_base_path', os.path.join(Path.home(), ".ssa-data"))
         chains = {}
         for chain in config_json.get('chains'):
             key = chain.get('key')
