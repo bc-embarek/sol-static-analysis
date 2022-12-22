@@ -2,9 +2,8 @@
 
 import json
 import os.path
-import pathlib
-from typing import Dict
 from pathlib import Path
+from typing import Dict
 
 
 class Chain:
@@ -22,7 +21,7 @@ class GlobalConfig:
         self.chains = chains
 
 
-def load_config(config_filepath) -> GlobalConfig:
+def load_config(config_filepath=None) -> GlobalConfig:
     if not config_filepath:
         config_filepath = os.path.join(Path.home(), ".ssa-config.json")
     if not os.path.exists(config_filepath):
