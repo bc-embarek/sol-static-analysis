@@ -1,8 +1,12 @@
 # -*- coding:utf-8 -*-
 import logging
+import traceback
 from unittest import TestCase
+
+from sqlalchemy.orm import sessionmaker
+
 from common.config import load_config
-from common.dataset import init_database
+from common.dataset import init_database, get_all_compiled_contracts
 from common.enums import Networks
 from source.static_analysis import StaticAnalysisBuilder
 
@@ -24,5 +28,18 @@ class StaticAnalysisTest(TestCase):
     def test_bsc(self):
         static_analysis = StaticAnalysisBuilder(global_config=self.global_config, network=Networks.BSC,
                                                 engine=self.engine)
-        results = static_analysis.run('0x3A5Ddb3E5C0D9ee587eb8FB865432893B2A92099')
+        results = static_analysis.run('0x002e662ed331bd17aaa7051fbd65b33428c71832')
         self.assertTrue(len(results[0]) <= 0)
+
+    def test_all_bsc_contract(self):
+        with sessionmaker(self.engine)() as session:
+            static_analysis = StaticAnalysisBuilder(global_config=self.global_config, network=Networks.BSC,
+                                                    engine=self.engine)
+            compiled_contracts = get_all_compiled_contracts(session, Networks.BSC)
+            for contract in compiled_contracts:
+                try:
+                    results = static_analysis.run(contract.address)
+                    if len(results[0]) > 0:
+                        logging.warning(f'vulnerability found in contract:{contract.address}')
+                except:
+                    logging.warning(traceback.format_exc())

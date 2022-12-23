@@ -61,7 +61,11 @@ class PublicMintDetector(AbstractDetector):
                 if func.is_constructor or func.is_fallback or func.is_receive:
                     continue
 
-                if func.name == 'mint':
-                    if not self._has_msg_sender_check(func):
+                if func.name == 'mint' and func.entry_point is not None:
+                    functions_to_check = [func]
+                    for x in func.internal_calls:
+                        if isinstance(x, FunctionContract):
+                            functions_to_check.append(x)
+                    if not any([self._has_msg_sender_check(f) for f in functions_to_check]):
                         results.append(self.generate_result(['public mint found in ', func]))
         return results

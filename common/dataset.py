@@ -52,6 +52,16 @@ def get_or_add_contract(session: Session, network: Networks, contract_address: s
 def get_all_new_contracts(session: Session, network: Networks):
     try:
         return session.query(Contract) \
-            .filter(Contract.network == network.value, Contract.has_source_code == None).all()
+            .filter(Contract.network == network.value, Contract.has_source_code == None,
+                    Contract.is_proxy == None).all()
+    except NoResultFound:
+        return []
+
+
+def get_all_compiled_contracts(session: Session, network: Networks):
+    try:
+        return session.query(Contract) \
+            .filter(Contract.network == network.value, Contract.has_source_code == True,
+                    Contract.compile_success == True).order_by(Contract.id.desc()).all()
     except NoResultFound:
         return []

@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import logging
+from concurrent.futures import ThreadPoolExecutor
 from unittest import TestCase
 
 from sqlalchemy.orm import sessionmaker
@@ -24,7 +25,7 @@ class SourceCodeDownloaderTest(TestCase):
         self.downloader.download_and_compile('0xbCB79CF3fE7a17024257c19056a1225a5701A7aB')
 
     def test_download_all_contract_source(self):
+        pool = ThreadPoolExecutor(max_workers=5)
         with sessionmaker(self.engine)() as session:
             for contract in get_all_new_contracts(session, self.network):
-                self.downloader.download_and_compile(contract.address)
-            pass
+                pool.submit(self.downloader.download_and_compile, contract.address)

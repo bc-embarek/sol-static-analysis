@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 from common.config import load_config
 from common.enums import Networks
-from common.dataset import init_database, get_or_add_contract
+from common.dataset import init_database, get_or_add_contract, get_all_compiled_contracts
 
 
 class DatasetTest(TestCase):
@@ -21,6 +21,11 @@ class DatasetTest(TestCase):
                 self.assertIsNotNone(contract)
             finally:
                 session.commit()
+
+    def testGetAllCompiledContract(self):
+        with sessionmaker(self.engine)() as session:
+            contracts = get_all_compiled_contracts(session, Networks.BSC)
+            self.assertTrue(len(contracts) >= 0)
 
     def testAddContractsFromFile(self):
         with open('../bsc-pancake-swap-tokens.txt', 'r') as f:
