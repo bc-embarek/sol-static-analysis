@@ -18,12 +18,14 @@ class SourceCodeDownloader:
     def __init__(self, global_config: GlobalConfig, network: Networks, engine: Engine):
         self.global_config = global_config
         self.network = network
-        self.api_key = self.global_config.chains.get(network.value).etherscan_api_key
+        self.api_keys = self.global_config.chains.get(network.value).etherscan_api_key.split(',')
         self.compile_output_dir = os.path.join(global_config.storage_path, network.value)
         self.engine = engine
 
     @format_address
-    def download_and_compile(self, contract_address):
+    def download_and_compile(self, contract_address, api_key=None):
+        if not api_key:
+            api_key = self.api_keys[0]
         with sessionmaker(self.engine)() as session:
             try:
                 contract = get_or_add_contract(session=session, network=self.network, contract_address=contract_address)
@@ -35,8 +37,7 @@ class SourceCodeDownloader:
                     return self.download_and_compile(contract.proxy_address)
                 compile_json_file = os.path.join(self.compile_output_dir, contract_address + "_export.json")
                 if not os.path.exists(compile_json_file):
-                    proxy_address = get_proxy_addr(network=self.network, contract=contract_address,
-                                                   api_key=self.api_key)
+                    proxy_address = get_proxy_addr(network=self.network, contract=contract_address, api_key=api_key)
                     contract.last_check_time = datetime.now()
                     if proxy_address:
                         contract.is_proxy = True
@@ -50,10 +51,10 @@ class SourceCodeDownloader:
                                   "solc_disable_warnings": True}
                         compile_target = contract_address
                         if self.network == Networks.ETHEREUM:
-                            kwargs["etherscan_api_key"] = self.api_key
+                            kwargs["etherscan_api_key"] = api_key
                             compile_target = f'mainet:{compile_target}'
                         elif self.network == Networks.BSC:
-                            kwargs["bscan_api_key"] = self.api_key
+                            kwargs["bscan_api_key"] = api_key
                             compile_target = f'bsc:{compile_target}'
                         # compile
                         try:

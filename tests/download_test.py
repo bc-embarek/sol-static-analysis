@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 import logging
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
 from unittest import TestCase
 
 from sqlalchemy.orm import sessionmaker
@@ -14,7 +14,7 @@ from source.downloader import SourceCodeDownloader
 class SourceCodeDownloaderTest(TestCase):
 
     def setUp(self) -> None:
-        logging.basicConfig(format='%(message)s')
+        logging.basicConfig(format='%(asctime)s: t-%(thread)d: %(levelname)s: %(message)s')
         logging.getLogger().setLevel(logging.INFO)
         global_config = load_config('config-example.json')
         self.network = Networks.BSC
@@ -25,7 +25,16 @@ class SourceCodeDownloaderTest(TestCase):
         self.downloader.download_and_compile('0xbCB79CF3fE7a17024257c19056a1225a5701A7aB')
 
     def test_download_all_contract_source(self):
-        pool = ThreadPoolExecutor(max_workers=5)
+        api_keys_length = len(self.downloader.api_keys)
+        pools = []
+        for i in range(api_keys_length):
+            pools.append(ThreadPoolExecutor(max_workers=5))
+
+        tasks = []
         with sessionmaker(self.engine)() as session:
-            for contract in get_all_new_contracts(session, self.network):
-                pool.submit(self.downloader.download_and_compile, contract.address)
+            for idx, contract in enumerate(get_all_new_contracts(session, self.network)):
+                pool_idx = idx % api_keys_length
+                tasks.append(pools[pool_idx].submit(self.downloader.download_and_compile, contract.address,
+                                                    self.downloader.api_keys[pool_idx]))
+
+        wait(tasks, return_when=ALL_COMPLETED)

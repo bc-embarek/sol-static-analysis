@@ -53,7 +53,7 @@ def get_all_new_contracts(session: Session, network: Networks):
     try:
         return session.query(Contract) \
             .filter(Contract.network == network.value, Contract.has_source_code == None,
-                    Contract.is_proxy == None).all()
+                    Contract.is_proxy == None).order_by(Contract.id.desc()).all()
     except NoResultFound:
         return []
 
