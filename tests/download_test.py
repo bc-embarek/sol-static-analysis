@@ -28,7 +28,7 @@ class SourceCodeDownloaderTest(TestCase):
         api_keys_length = len(self.downloader.api_keys)
         pools = []
         for i in range(api_keys_length):
-            pools.append(ThreadPoolExecutor(max_workers=5))
+            pools.append(ThreadPoolExecutor(max_workers=2))
 
         tasks = []
         with sessionmaker(self.engine)() as session:

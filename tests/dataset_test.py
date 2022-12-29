@@ -29,11 +29,11 @@ class DatasetTest(TestCase):
             self.assertTrue(len(contracts) >= 0)
 
     def testAddContractsFromFile(self):
-        with open('../bsc-pancake-swap-tokens.txt', 'r') as f:
+        with open('../avax_tokens.txt', 'r') as f:
             line = f.readline()
             while line:
                 with sessionmaker(self.engine)() as session:
-                    get_or_add_contract(session=session, network=Networks.BSC, contract_address=line.strip())
+                    get_or_add_contract(session=session, network=Networks.AVAX, contract_address=line.strip())
                     session.commit()
                 line = f.readline()
 
