@@ -8,3 +8,4 @@ class Networks(Enum):
     BSC = "bsc"
     POLYGON = "polygon"
     FANTOM = "fantom"
+    AVAX = "avax"

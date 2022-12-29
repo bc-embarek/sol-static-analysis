@@ -17,12 +17,12 @@ class SourceCodeDownloaderTest(TestCase):
         logging.basicConfig(format='%(asctime)s: t-%(thread)d: %(levelname)s: %(message)s')
         logging.getLogger().setLevel(logging.INFO)
         global_config = load_config('config-example.json')
-        self.network = Networks.BSC
+        self.network = Networks.AVAX
         self.engine = init_database(global_config)
         self.downloader = SourceCodeDownloader(global_config, network=self.network, engine=self.engine)
 
     def test_download_source(self):
-        self.downloader.download_and_compile('0xbCB79CF3fE7a17024257c19056a1225a5701A7aB')
+        self.downloader.download_and_compile('0x251573b60b2976fA263bAB01D687594eF92B0291')
 
     def test_download_all_contract_source(self):
         api_keys_length = len(self.downloader.api_keys)

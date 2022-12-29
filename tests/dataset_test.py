@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 from common.config import load_config
 from common.enums import Networks
+from common.etherscan_api import get_new_verified_contracts
 from common.dataset import init_database, get_or_add_contract, get_all_compiled_contracts
 
 
@@ -35,3 +36,12 @@ class DatasetTest(TestCase):
                     get_or_add_contract(session=session, network=Networks.BSC, contract_address=line.strip())
                     session.commit()
                 line = f.readline()
+
+    def testGetContractsFromEtherscan(self):
+        # download new verified contracts
+        network = Networks.BSC
+        new_verified_contracts = get_new_verified_contracts(network)
+        for contract in new_verified_contracts:
+            with sessionmaker(self.engine)() as session:
+                get_or_add_contract(session=session, network=network, contract_address=contract.strip())
+                session.commit()

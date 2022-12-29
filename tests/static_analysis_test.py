@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import logging
 import traceback
+from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
 from unittest import TestCase
 
 from sqlalchemy.orm import sessionmaker
@@ -31,16 +32,24 @@ class StaticAnalysisTest(TestCase):
     def test_all_bsc_contract(self):
         logging.basicConfig(format='%(asctime)s: t-%(thread)d: %(levelname)s: %(message)s')
         logging.getLogger().setLevel(logging.INFO)
+
+        def detect(_contract, _idx, _total_contracts):
+            try:
+                results = static_analysis.run(_contract.address)
+                if len(results[0]) > 0:
+                    logging.warning(f'vulnerability found in contract:{_contract.address}')
+                else:
+                    logging.info(f'{_idx}/{_total_contracts}')
+            except:
+                logging.warning(traceback.format_exc())
+
         with sessionmaker(self.engine)() as session:
             static_analysis = StaticAnalysisBuilder(global_config=self.global_config, network=Networks.BSC,
                                                     engine=self.engine)
             compiled_contracts = get_all_compiled_contracts(session, Networks.BSC)
+            total_contracts = len(compiled_contracts)
+            pool = ThreadPoolExecutor(max_workers=10)
+            tasks = []
             for idx, contract in enumerate(compiled_contracts):
-                try:
-                    results = static_analysis.run(contract.address)
-                    if len(results[0]) > 0:
-                        logging.warning(f'vulnerability found in contract:{contract.address}')
-                    else:
-                        logging.info(f'{idx}/{len(compiled_contracts)}')
-                except:
-                    logging.warning(traceback.format_exc())
+                tasks.append(pool.submit(detect, contract, idx, total_contracts))
+            wait(tasks, return_when=ALL_COMPLETED)

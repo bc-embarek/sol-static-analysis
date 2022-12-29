@@ -56,6 +56,9 @@ class SourceCodeDownloader:
                         elif self.network == Networks.BSC:
                             kwargs["bscan_api_key"] = api_key
                             compile_target = f'bsc:{compile_target}'
+                        elif self.network == Networks.AVAX:
+                            kwargs["avax_api_key"] = api_key
+                            compile_target = f'avax:{compile_target}'
                         # compile
                         try:
                             compilation = CryticCompile(target=compile_target, **kwargs)
