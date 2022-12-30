@@ -9,3 +9,18 @@ class Networks(Enum):
     POLYGON = "polygon"
     FANTOM = "fantom"
     AVAX = "avax"
+
+
+def get_network_by_key(key: str):
+    if key == Networks.ETHEREUM.value:
+        return Networks.ETHEREUM
+    elif key == Networks.BSC.value:
+        return Networks.BSC
+    elif key == Networks.POLYGON.value:
+        return Networks.POLYGON
+    elif key == Networks.FANTOM.value:
+        return Networks.FANTOM
+    elif key == Networks.AVAX.value:
+        return Networks.AVAX
+    else:
+        raise ValueError(f"unknown network: {key}")
