@@ -82,6 +82,7 @@ class SourceCodeDownloader:
                 sourcecode_base_dir = os.path.join(self.compile_output_dir, 'etherscan-contracts')
                 sourcecode_locations = [x for x in os.listdir(sourcecode_base_dir) if
                                         x.startswith(contract_address.lower())]
-                logging.info(f'Location: {os.path.join(sourcecode_base_dir, sourcecode_locations[0])}')
+                logging.info(f'Download success. contract:{contract_address}\t'
+                             f'Location: {os.path.join(sourcecode_base_dir, sourcecode_locations[0])}')
             finally:
                 session.commit()
